@@ -7,50 +7,53 @@
 
 import SwiftUI
 
-//struct ContentView: View {
-////    @State private var tapCount = 0
-////    @State private var name = ""
-//    var body: some View {
-////        NavigationView {
-////            Form {
-////                Section {
-////                    Text("Hello, world!")
-////                        .padding()
-////                }
-////            }
-////            .navigationBarTitle("SwiftUI")
-////        }
-////        Button("Tap count: \(tapCount)"){
-////            self.tapCount += 1
-////        }
-////        Form {
-////            // 因此，当您在属性名称之前看到美元符号时，请记住，它会创建双向绑定：既读取属性值，又写入属性值。
-////            TextField("Enter your name", text: $name)
-////            Text("Your name is \(name)")
-////        }
-//        Form {
-////            ForEach(0 ..< 100) { number in
-////                Text("Row \(number)")
-////            }
-//            ForEach(0 ..< 100) {
-//                Text("Row \($0)")
-//            }
-//        }
-//    }
-//}
-
 struct ContentView: View {
-    let students = ["Harry", "Hermione", "Ron"]
-    @State private var selectedStudent = 0
+    @State private var checkAmount = ""
+    @State private var numberOfPeople = 2
+    @State private var tipPercentage = 2
+    let tipPercentages = [10, 15, 20, 25, 0]
+    
+    var totalPerPerson: Double {
+        let peopleCount = Double(numberOfPeople + 2)
+        let tipSelection = Double(tipPercentages[tipPercentage])
+        let orderAmount = Double(checkAmount) ?? 0
+        
+        let tipValue = orderAmount / 100 * tipSelection
+        let grandTotal = orderAmount + tipValue
+        let amountPerPerson = grandTotal / peopleCount
+        
+        return amountPerPerson
+    }
     
     var body: some View {
-        VStack {
-            Picker("Select your student", selection: $selectedStudent) {
-                ForEach(0 ..< students.count) {
-                    Text(self.students[$0])
+        NavigationView {
+            Form {
+                Section {
+                    TextField("Amount", text: $checkAmount)
+                        .keyboardType(.decimalPad)
+                    
+                    Picker("Number of peiple", selection: $numberOfPeople) {
+                        ForEach(2 ..< 100) {
+                            Text("\($0) people")
+                        }
+                    }
+                }
+                
+                Section(header: Text("How much tip do you want to leave?")) {
+                    Picker("Tip percentage", selection: $tipPercentage) {
+                        ForEach(0 ..< tipPercentages.count) {
+                            Text("\(self.tipPercentages[$0])%")
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+                .textCase(nil)
+                
+                Section {
+                    Text("$\(totalPerPerson, specifier: "%.2f")")
                 }
             }
-            Text("You chose: Student # \(students[selectedStudent])")
+            .navigationBarTitle("WeSplit")
         }
     }
 }
